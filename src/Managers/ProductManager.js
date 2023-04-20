@@ -34,7 +34,7 @@ class ProductManager {
 
   async addProduct(product) {
     const { title, description, price, thumbnail, code, stock, status=true, category } = product;
-    if (!title || !description || !price || !thumbnail || !code || !stock || !category) {
+    if (!title || !description || !price || !code || !stock || !category) {
       console.error('Todos los campos son obligatorios');
       return;
     }

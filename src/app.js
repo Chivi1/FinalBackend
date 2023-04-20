@@ -7,13 +7,19 @@ app.use(express.json());
 const productManager = new ProductManager('./products.json');
 
 app.get('/products', async (req, res) => {
-  const limit = req.query.limit;
-  const products = await productManager.getProducts();
-  console.log(limit, products)
-  const limitedProducts = limit ? products.slice(0, limit) : products;
-  console.log(limitedProducts)
-  res.json(limitedProducts);
+const limit = parseInt(req.query.limit);
+const products = await productManager.getProducts();
+const limitedProducts = isNaN(limit) ? products : products.slice(0, limit);
+res.json(limitedProducts);
 });
+
+//Agregar un product desde Postman
+app.post('/products', async (req, res =>{
+  const productPostman = req.body;
+  console.log(productPostman);
+  productManager.addProduct(productPostman)
+  res.send ("ok");
+}))
 
 app.get('/products/:pid', async (req, res) => {
   const productId =  parseInt(req.params.pid);
@@ -26,7 +32,7 @@ app.get('/products/:pid', async (req, res) => {
 });
 
 // Ruta para obtener los productos de un carrito por su ID
-app.get('api/cart/:cid/products', async (req, res) => {
+app.get('/api/cart/:cid/products', async (req, res) => {
   try {
     // Obtener el ID del carrito de la URL
     const { cid } = req.params;
