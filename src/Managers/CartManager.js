@@ -12,7 +12,6 @@ app.use(express.json());
 //crear un nuevo carrito
 app.post('/api/carts', async (req, res) => {
   try {
-    // Leer el archivo de carts
     const carts = JSON.parse(await readFile('carts.json'));
 
     // Crear un nuevo carrito con un id autoincrementable
@@ -98,7 +97,7 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     });
 
     // Función para obtener un carrito por su ID
-    async function getCarritoById(id) {
+    async function getCartById(id) {
       try {
         // Leer el archivo "carrito.json"
         const carritos = JSON.parse(await fs.readFile(path.join(__dirname, 'carts.json')));
@@ -113,6 +112,22 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
         throw new Error('Hubo un error al obtener el carrito.');
       }
     }
-    
+
+    // Ruta para obtener los productos de un carrito por su ID
+  app.get('/api/cart/:cid/products', async (req, res) => {
+    try {
+    // Obtener el ID del carrito de la URL
+    const { cid } = req.params;
+
+    // Buscar el carrito correspondiente en el archivo "carrito.json"
+    const carrito = await CartManager.getCartById(cid);
+
+    // Devolver los productos del carrito
+    res.json(carrito.products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Hubo un error al obtener los productos del carrito.');
+  }
+});
 export default CartManager
 

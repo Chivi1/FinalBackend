@@ -1,6 +1,8 @@
-import fs from 'fs';
 import express  from 'express';
+import { Router } from "express";
+import fs from 'fs';
 
+const router = Router();
 const app = express();
 app.use(express.json());
 
@@ -33,9 +35,9 @@ class ProductManager {
   
 
   async addProduct(product) {
-    const { title, description, price, thumbnail, code, stock, status=true, category } = product;
-    if (!title || !description || !price || !code || !stock || !category) {
-      console.error('Todos los campos son obligatorios');
+    const { title, description, price, code, stock, category, status=true } = product;
+if (!title || !description || !price || !code || !stock || !category) {
+  console.error('Todos los campos son obligatorios');
       return;
     }
     if (this.getProductByCode(code)) {
@@ -116,10 +118,66 @@ class ProductManager {
     console.log(`El producto con id ${id} ha sido eliminado con éxito.`);
   }
 }
-
-export default ProductManager;
-
-
+const productManager = new ProductManager('./products.json');
+//mostrar products en products.json
+router.get('/', async (req, res) => {
+    const limit = parseInt(req.query.limit);
+    const products = await productManager.getProducts();
+    const limitedProducts = isNaN(limit) ? products : products.slice(0, limit);
+    res.json(limitedProducts);
+    });
+    
+    //addproduct con postman
+    router.post('/', async (req, res) => {
+      try {
+        const productPostman = req.body;
+        console.log(productPostman);
+        await productManager.addProduct(productPostman);
+        res.send("ok");
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Error adding product");
+      }
+    });
+    
+    //mostrar product por id
+    router.get('/:pid', async (req, res) => {
+      const productId =  parseInt(req.params.pid);
+      try {
+        const product = await productManager.getProductById(productId);
+        res.json(product);
+      } catch (error) {
+        res.status(404).send('Product not found');
+      }
+    });
+    
+    //actualizar un product 
+    router.put('/:id', (req, res) => {
+      const productId = req.params.id;
+      const updatedProduct = req.body;
+      productManager.updateProduct(productId, updatedProduct)
+        .then((result) => {
+          res.status(200).send(`El producto con id ${productId} ha sido actualizado`);
+        })
+        .catch((error) => {
+          console.error(`Ocurrió un error al actualizar el producto con id ${productId}: ${error}`);
+          res.status(500).send('Ocurrió un error al actualizar el producto');
+        });
+    });
+    
+    //borrar producto por id
+    router.delete('/:id', (req, res) => {
+      const productId = req.params.id;
+      productManager.deleteProduct(productId)
+        .then((res) => {
+          res.status(200).send(`El producto con id ${productId} ha sido eliminado`);
+        })
+        .catch((error) => {
+          console.error(`Ocurrió un error al eliminar el producto con id ${productId}: ${error}`);
+          res.status(500).send('Ocurrió un error al eliminar el producto');
+        });
+    });
+export default router;
 
 //Crear producto
 
@@ -134,4 +192,3 @@ export default ProductManager;
     category: 'gorras'
 };
 productManager.addProduct(newProduct);  */
-
