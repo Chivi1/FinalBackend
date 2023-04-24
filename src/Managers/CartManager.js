@@ -1,10 +1,5 @@
-import express from 'express';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
 
-
-const app = express();
-const CartManager = express.Router();
+/*
 let cartIdCounter = 1;
 
 app.use(express.json());
@@ -128,6 +123,6 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     console.error(error);
     res.status(500).send('Hubo un error al obtener los productos del carrito.');
   }
-});
-export default CartManager
+}); */
+
 

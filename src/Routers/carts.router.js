@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 //crear un nuevo carrito
-app.post('/api/carts', async (req, res) => {
+app.post('/', async (req, res) => {
     try {
       const carts = JSON.parse(await readFile('carts.json'));
   
@@ -32,7 +32,7 @@ app.post('/api/carts', async (req, res) => {
   });
   
   // Endpoint para agregar un producto a un carrito
-  app.post('/api/carts/:cid/product/:pid', async (req, res) => {
+  app.post('/:cid/product/:pid', async (req, res) => {
     try {
       // Leer el archivo de carts
       const carts = JSON.parse(await readFile('carts.json'));
@@ -78,7 +78,7 @@ app.post('/api/carts', async (req, res) => {
   });
   
       // Buscar el carrito correspondiente al cid especificado
-      app.get('api/carts/:cid', async (req, res) => {
+      app.get('/:cid', async (req, res) => {
           try {
             const cartId = parseInt(req.params.cid);
             const cart = await readCart(cartId);
@@ -112,7 +112,7 @@ app.post('/api/carts', async (req, res) => {
       }
   
       // Ruta para obtener los productos de un carrito por su ID
-    app.get('/api/cart/:cid/products', async (req, res) => {
+    app.get('/:cid/products', async (req, res) => {
       try {
       // Obtener el ID del carrito de la URL
       const { cid } = req.params;
