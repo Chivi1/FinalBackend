@@ -115,7 +115,7 @@ router.get('/:cid', async (req, res) => {
 });
 
   
-// Ruta para obtener los productos de un carrito por su ID
+/* // Ruta para obtener los productos de un carrito por su ID
 router.get('/:cid/products', async (req, res) => {
   try {
   // Obtener el ID del carrito de la URL
@@ -130,7 +130,7 @@ router.get('/:cid/products', async (req, res) => {
   console.error(error);
   res.status(500).send('Hubo un error al obtener los productos del carrito.');
 }
-});
+}); */
 
 
 
