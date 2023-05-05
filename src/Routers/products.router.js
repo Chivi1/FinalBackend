@@ -20,8 +20,10 @@ router.get('/', async (req, res) => {
       try {
         const productPostman = req.body;
         console.log(productPostman);
-        await productManager.addProduct(productPostman);
-        res.send("ok");
+        const result = await productManager.addProduct(productPostman);
+        const productsUpdated = await productManager.getProducts();
+        req.io.emit(productsUpdated)
+        res.status(201).send("ok", {status: 'success', payload: result});
       } catch (error) {
         console.error(error);
         res.status(500).send("Error adding product");
@@ -65,6 +67,7 @@ router.get('/', async (req, res) => {
           res.status(500).send('Ocurrió un error al eliminar el producto');
         });
     });
+    
 export default router;
 
 //Crear producto
