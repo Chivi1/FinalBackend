@@ -8,6 +8,6 @@ router.get ('/',(req,res)=>{
 
 router.get('/products',(req,res)=>{
     res.render('realTimeProducts')
-} );
+    } );
 
 export default router;

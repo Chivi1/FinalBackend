@@ -34,5 +34,4 @@ io.on('connection', socket =>{
 app.use((req,res,next)=>{
     req.io = io;
     next();
-})
-
+});

@@ -1,73 +1,75 @@
-import express  from 'express';
 import { Router } from "express";
+import ProductManager from "../managers/ProductManager.js";
 
-import ProductManager from '../Managers/ProductManager.js';
 const router = Router();
-const app = express();
-app.use(express.json());
+const productManager = new ProductManager("./products.json");
 
-const productManager = new ProductManager('./products.json');
-//mostrar products en products.json
-router.get('/', async (req, res) => {
+// Mostrar todos los productos
+router.get("/", async (req, res) => {
+  try {
     const limit = parseInt(req.query.limit);
     const products = await productManager.getProducts();
     const limitedProducts = isNaN(limit) ? products : products.slice(0, limit);
     res.json(limitedProducts);
-    });
-    
-    //addproduct con postman
-    router.post('/', async (req, res) => {
-      try {
-        const productPostman = req.body;
-        console.log(productPostman);
-        const result = await productManager.addProduct(productPostman);
-        const productsUpdated = await productManager.getProducts();
-        req.io.emit(productsUpdated)
-        res.status(201).send("ok", {status: 'success', payload: result});
-      } catch (error) {
-        console.error(error);
-        res.status(500).send("Error adding product");
-      }
-    });
-    
-    //mostrar product por id
-    router.get('/:pid', async (req, res) => {
-      const productId =  parseInt(req.params.pid);
-      try {
-        const product = await productManager.getProductById(productId);
-        res.json(product);
-      } catch (error) {
-        res.status(404).send('Product not found');
-      }
-    });
-    
-    //actualizar un product 
-    router.put('/:id', (req, res) => {
-      const productId = req.params.id;
-      const updatedProduct = req.body;
-      productManager.updateProduct(productId, updatedProduct)
-        .then((result) => {
-          res.status(200).send(`El producto con id ${productId} ha sido actualizado`);
-        })
-        .catch((error) => {
-          console.error(`Ocurrió un error al actualizar el producto con id ${productId}: ${error}`);
-          res.status(500).send('Ocurrió un error al actualizar el producto');
-        });
-    });
-    
-    //borrar producto por id
-    router.delete('/:id', (req, res) => {
-      const productId = req.params.id;
-      productManager.deleteProduct(productId)
-        .then((res) => {
-          res.status(200).send(`El producto con id ${productId} ha sido eliminado`);
-        })
-        .catch((error) => {
-          console.error(`Ocurrió un error al eliminar el producto con id ${productId}: ${error}`);
-          res.status(500).send('Ocurrió un error al eliminar el producto');
-        });
-    });
-    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener los productos." });
+  }
+});
+
+// Agregar un nuevo producto
+router.post("/", async (req, res) => {
+  try {
+    const product = req.body;
+    await productManager.addProduct(product);
+    res.status(201).json({ message: "Producto agregado con éxito." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al agregar el producto." });
+  }
+});
+
+// Mostrar un producto por su ID
+router.get("/:id", async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const product = await productManager.getProductById(productId);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ error: "Producto no encontrado." });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener el producto." });
+  }
+});
+
+// Actualizar un producto por su ID
+router.put("/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const updatedProduct = req.body;
+    await productManager.updateProduct(productId, updatedProduct);
+    res.json({ message: `El producto con ID ${productId} ha sido actualizado.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al actualizar el producto." });
+  }
+});
+
+// Eliminar un producto por su ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    await productManager.deleteProduct(productId);
+    res.json({ message: `El producto con ID ${productId} ha sido eliminado.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar el producto." });
+  }
+});
+
 export default router;
 
 //Crear producto
@@ -83,3 +85,18 @@ export default router;
     category: 'gorras'
 };
 productManager.addProduct(newProduct);  */
+
+/* router.post('/', async (req, res) => {
+  try {
+    const productPostman = req.body;
+    console.log(productPostman);
+    const result = await productManager.addProduct(productPostman);
+        const productsUpdated = await productManager.getProducts();
+    req.io.emit('productsUpdated', productsUpdated);
+    console.log('Productos actualizados:', productsUpdated); // mensaje de registro
+    res.status(201).send("ok", {status: 'success', payload: result});
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error adding product");
+  }
+}); */

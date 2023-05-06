@@ -1,5 +1,4 @@
-import fs from 'fs';
-
+import fs from 'fs/promises';
 
 class ProductManager {
   constructor(path) {
@@ -10,18 +9,16 @@ class ProductManager {
 
   async loadProducts() {
     try {
-      const data = await fs.promises.readFile(this.path);
+      const data = await fs.readFile(this.path);
       this.products = JSON.parse(data);
     } catch (err) {
-      this.products = [];
       console.error(`Error al cargar productos desde archivo ${this.path}: ${err}`);
     }
   }
   
   async saveProducts() {
     try {
-      const data = JSON.stringify(this.products);
-      await fs.promises.writeFile(this.path, data);
+      await fs.writeFile(this.path, JSON.stringify(this.products));
       console.log(`Productos guardados en archivo ${this.path}.`);
     } catch (err) {
       console.error(`Error al guardar productos en archivo ${this.path}: ${err}`);
@@ -39,17 +36,18 @@ class ProductManager {
       console.error('El código del producto ya existe');
       return;
     }
-    const id = this.products.length + 1;
-    const newProduct = { id, ...product };
+    const newProduct = { id: this.products.length + 1, ...product };
     this.products.push(newProduct);
     await this.saveProducts();
     console.log(`El producto ${newProduct.title} ha sido agregado con éxito.`);
+  
+    // Emitir evento con la lista actualizada de productos
+    this.emitUpdatedProducts();
   }
   
-
   async getProducts() {
     try {
-      const file = await fs.promises.readFile(this.path);
+      const file = await fs.readFile(this.path);
       return JSON.parse(file.toString());
     } catch (error) {
       console.error(error);
@@ -58,63 +56,57 @@ class ProductManager {
   }
 
   async getProductById(id) {
-    try {
-      const products = await this.getProducts();
-
-      const product = products.find((p) => p.id === id);
-
-      if (!product) {
-        throw new Error(`No se encontró ningún producto con id ${id}`);
-      }
-
-      return product;
-    } catch (error) {
-      console.error(error);
-      throw error;
+    const product = this.products.find(p => p.id === id);
+    if (!product) {
+      throw new Error(`No se encontró ningún producto con id ${id}`);
     }
-  }
-
-  getProductByCode(code) {
-    const product = this.products.find(p => p.code === code);
     return product;
   }
 
+  getProductByCode(code) {
+    return this.products.find(p => p.code === code);
+  }
+
   async updateProduct(id, productData) {
-    try {
-      const productIndex = this.products.findIndex(p => p.id === id);
-      ;
-      if (productIndex !== -1) {
-        // Copiamos el objeto
-        const productToUpdate = Object.assign({}, this.products[productIndex]);
-  
-        // Actualizamos solo las propiedades que se reciben en el objeto productData
-        Object.assign(productToUpdate, productData);
-  
-        this.products[productIndex] = productToUpdate;
-        await this.saveProducts();
-        console.log(`Producto con ID ${id} actualizado.`);
-      } else {
-        console.log(`Producto con ID ${id} no encontrado.`);
-      }
-    } catch (error) {
-      console.log(`Error al actualizar el producto con ID ${id}: ${error}`);
+    const productIndex = this.products.findIndex(p => p.id === id);
+    if (productIndex !== -1) {
+      Object.assign(this.products[productIndex], productData);
+      await this.saveProducts();
+      console.log(`Producto con ID ${id} actualizado.`);
+    } else {
+      console.log(`Producto con ID ${id} no encontrado.`);
     }
+  
+    // Emitir evento con la lista actualizada de productos
+    this.emitUpdatedProducts();
   }
   
 
-  deleteProduct(id) {
+  async deleteProduct(id) {
     const index = this.products.findIndex(p => p.id === id);
     if (index === -1) {
       console.error('Producto no encontrado');
-      return;
+      throw new Error('Producto no encontrado');
     }
     this.products.splice(index, 1);
-    this.saveProducts();
+    await this.saveProducts();
     console.log(`El producto con id ${id} ha sido eliminado con éxito.`);
+  
+    // Emitir evento con la lista actualizada de productos
+    this.emitUpdatedProducts();
+  }
+
+  emitUpdatedProducts() {
+    this.getProducts().then(updatedProducts => {
+      req.io.emit('products', updatedProducts);
+    }).catch(error => {
+      console.error(`Error al obtener la lista actualizada de productos: ${error}`);
+    });
   }
 }
 
 export default ProductManager;
+
 
 
 //Ejemplo de uso
