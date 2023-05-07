@@ -1,11 +1,11 @@
 import { Router } from "express";
-import ProductManager from "../managers/ProductManager";
+import ProductManager from "../Managers/ProductManager.js";
 
 const router = Router();
+const productManager = new ProductManager('./products.json');
 
-app.get('/products', async (req, res) => {
+router.get('/products', async (req, res) => {
     try {
-      const productManager = new ProductManager('./products.json');
       const products = await productManager.getProducts();
       res.render('realtimeproducts', { products });
     } catch (error) {
@@ -14,9 +14,8 @@ app.get('/products', async (req, res) => {
     }
   });
 
-  app.get('/', async (req, res) => {
+  router.get('/', async (req, res) => {
     try {
-      const productManager = new ProductManager('./products.json');
       const products = await productManager.getProducts();
       res.render('home', { products });
     } catch (error) {

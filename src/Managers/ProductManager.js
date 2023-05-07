@@ -85,9 +85,7 @@ class ProductManager {
     this.products.splice(index, 1);
     await this.saveProducts();
     console.log(`El producto con id ${id} ha sido eliminado con éxito.`);
-
-  }
-
+}
 
 }
 

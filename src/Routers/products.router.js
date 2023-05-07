@@ -1,16 +1,8 @@
 import { Router } from "express";
-import ProductManager from "../managers/ProductManager.js";
+import ProductManager from "../Managers/ProductManager.js";
 
 const router = Router();
-const productManager = new ProductManager("./products.json");
-
-function emitUpdatedProducts(req) {
-  productManager.getProducts().then(updatedProducts => {
-    req.io.emit('products', updatedProducts);
-  }).catch(error => {
-    console.error(`Error al obtener la lista actualizada de productos: ${error}`);
-  });
-}
+const productManager = new ProductManager("products.json");
 
 // Mostrar todos los productos
 router.get("/", async (req, res) => {
@@ -26,14 +18,13 @@ router.get("/", async (req, res) => {
 });
 
 // Agregar un nuevo producto
-app.post('/api/products', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const product = req.body;
-    const productManager = new ProductManager('./products.json');
     await productManager.addProduct(product);
 
     // Emitir el nuevo producto a través de socket.io
-    io.emit('new-product', product);
+    req.io.emit('new-product', product);
 
     res.status(201).json({ message: 'Producto agregado con éxito.' });
   } catch (error) {

@@ -34,6 +34,6 @@ app.use('/api/cart', cartRouter)
 
 io.on('connection', (socket) => {
     console.log('socket connectado');
-  });
+});
 
 

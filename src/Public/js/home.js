@@ -1,3 +1,5 @@
+const socket= io();
+
 socket.on('products', products => {
     const productList = document.getElementById('product-list');
     productList.innerHTML = '';
