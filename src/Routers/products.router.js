@@ -4,6 +4,14 @@ import ProductManager from "../managers/ProductManager.js";
 const router = Router();
 const productManager = new ProductManager("./products.json");
 
+function emitUpdatedProducts(req) {
+  productManager.getProducts().then(updatedProducts => {
+    req.io.emit('products', updatedProducts);
+  }).catch(error => {
+    console.error(`Error al obtener la lista actualizada de productos: ${error}`);
+  });
+}
+
 // Mostrar todos los productos
 router.get("/", async (req, res) => {
   try {
@@ -18,16 +26,22 @@ router.get("/", async (req, res) => {
 });
 
 // Agregar un nuevo producto
-router.post("/", async (req, res) => {
+app.post('/api/products', async (req, res) => {
   try {
     const product = req.body;
+    const productManager = new ProductManager('./products.json');
     await productManager.addProduct(product);
-    res.status(201).json({ message: "Producto agregado con éxito." });
+
+    // Emitir el nuevo producto a través de socket.io
+    io.emit('new-product', product);
+
+    res.status(201).json({ message: 'Producto agregado con éxito.' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error al agregar el producto." });
+    res.status(500).json({ error: 'Error al agregar el producto.' });
   }
 });
+
 
 // Mostrar un producto por su ID
 router.get("/:id", async (req, res) => {
@@ -64,6 +78,7 @@ router.delete("/:id", async (req, res) => {
     const productId = req.params.id;
     await productManager.deleteProduct(productId);
     res.json({ message: `El producto con ID ${productId} ha sido eliminado.` });
+    req.io.emit('productDeleted', productId);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al eliminar el producto." });
@@ -86,17 +101,3 @@ export default router;
 };
 productManager.addProduct(newProduct);  */
 
-/* router.post('/', async (req, res) => {
-  try {
-    const productPostman = req.body;
-    console.log(productPostman);
-    const result = await productManager.addProduct(productPostman);
-        const productsUpdated = await productManager.getProducts();
-    req.io.emit('productsUpdated', productsUpdated);
-    console.log('Productos actualizados:', productsUpdated); // mensaje de registro
-    res.status(201).send("ok", {status: 'success', payload: result});
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error adding product");
-  }
-}); */

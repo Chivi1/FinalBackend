@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { promises as fs } from 'fs';
 
 class ProductManager {
   constructor(path) {
@@ -40,9 +40,6 @@ class ProductManager {
     this.products.push(newProduct);
     await this.saveProducts();
     console.log(`El producto ${newProduct.title} ha sido agregado con éxito.`);
-  
-    // Emitir evento con la lista actualizada de productos
-    this.emitUpdatedProducts();
   }
   
   async getProducts() {
@@ -76,9 +73,6 @@ class ProductManager {
     } else {
       console.log(`Producto con ID ${id} no encontrado.`);
     }
-  
-    // Emitir evento con la lista actualizada de productos
-    this.emitUpdatedProducts();
   }
   
 
@@ -91,21 +85,14 @@ class ProductManager {
     this.products.splice(index, 1);
     await this.saveProducts();
     console.log(`El producto con id ${id} ha sido eliminado con éxito.`);
-  
-    // Emitir evento con la lista actualizada de productos
-    this.emitUpdatedProducts();
+
   }
 
-  emitUpdatedProducts() {
-    this.getProducts().then(updatedProducts => {
-      req.io.emit('products', updatedProducts);
-    }).catch(error => {
-      console.error(`Error al obtener la lista actualizada de productos: ${error}`);
-    });
-  }
+
 }
 
 export default ProductManager;
+
 
 
 

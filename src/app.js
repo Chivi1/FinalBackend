@@ -18,6 +18,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(`${__dirname}/public/js`));
 
+app.use((req,res,next)=>{
+    req.io = io;
+    next();
+});
+
 //handlebars engine
 app.engine('handlebars',handlebars.engine());
 app.set('views', `${__dirname}/views`);
@@ -27,11 +32,8 @@ app.use('/', viewsRouter)
 app.use('/api/products', productsRouter)
 app.use('/api/cart', cartRouter) 
 
-io.on('connection', socket =>{
-    console.log('socket conectado')
-})
+io.on('connection', (socket) => {
+    console.log('socket connectado');
+  });
 
-app.use((req,res,next)=>{
-    req.io = io;
-    next();
-});
+
