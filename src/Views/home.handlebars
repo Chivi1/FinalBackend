@@ -1,7 +1,12 @@
 <h1>Listado de productos</h1>
     <div id="product-list">
 <!-- Aquí se mostrarán los productos -->
-    </div>
+<p>
+    {{#each products}}
+        <li>{{this.title}} - {{this.price}}</li>
+    {{/each}}
+</p>
+</div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/home.js"></script>
 

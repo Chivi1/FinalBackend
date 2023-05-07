@@ -23,8 +23,11 @@ router.post('/', async (req, res) => {
     const product = req.body;
     await productManager.addProduct(product);
 
+      // Obtener todos los productos después de agregar el nuevo producto
+      const products = await productManager.getProducts();
+
     // Emitir el nuevo producto a través de socket.io
-    req.io.emit('new-product', product);
+    req.io.emit('new-product', products);
 
     res.status(201).json({ message: 'Producto agregado con éxito.' });
   } catch (error) {
