@@ -1,6 +1,6 @@
 const socket= io();
 
-socket.on('products', products => {
+socket.on('new-product', products => {
     const productList = document.getElementById('product-list');
     productList.innerHTML = '';
   

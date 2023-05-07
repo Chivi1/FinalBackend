@@ -2,7 +2,7 @@ const socket = io();
 
 console.log(socket);
 
-socket.on('products', (data) => {
+socket.on('new-product', (data) => {
   console.log("LLEGO")
     const finalContent = document.getElementById('productsContainer');
     let content = '';
