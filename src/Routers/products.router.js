@@ -23,11 +23,11 @@ router.post('/', async (req, res) => {
     const product = req.body;
     await productManager.addProduct(product);
 
-      // Obtener todos los productos después de agregar el nuevo producto
-      const products = await productManager.getProducts();
+    // Obtener todos los productos después de agregar el nuevo producto
+    const products = await productManager.getProducts();
 
-    // Emitir el nuevo producto a través de socket.io
-    req.io.emit('new-product', products);
+    // Emitir todos los productos a través de socket.io
+    req.io.emit('product-list', products);
 
     res.status(201).json({ message: 'Producto agregado con éxito.' });
   } catch (error) {
@@ -67,15 +67,18 @@ router.put("/:id", async (req, res) => {
 });
 
 // Eliminar un producto por su ID
-router.delete("/:id", async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const productId = req.params.id;
-    await productManager.deleteProduct(productId);
-    res.json({ message: `El producto con ID ${productId} ha sido eliminado.` });
-    req.io.emit('productDeleted', productId);
+    const id = req.params.id;
+    await productManager.deleteProduct(id);
+
+    // Emitir el evento de "producto eliminado" a través de socket.io
+    req.io.emit('product-deleted', id);
+
+    res.status(200).json({ message: `Producto con ID ${id} eliminado.` });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error al eliminar el producto." });
+    res.status(500).json({ error: 'Error al eliminar el producto.' });
   }
 });
 
